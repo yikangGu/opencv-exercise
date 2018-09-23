@@ -1,7 +1,7 @@
 # Latex
-/*/*.tex
-/*/*.aux
-/*/*.log
+*.tex
+*.aux
+*.log
 
 # PPT
-/*/*.pptx
+*.pptx
