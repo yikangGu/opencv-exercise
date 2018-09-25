@@ -1,3 +1,5 @@
+.gitignore
+
 # Latex
 *.tex
 *.aux
@@ -5,3 +7,16 @@
 
 # PPT
 *.pptx
+
+# vscode
+.vscode/
+
+# CMAKE
+CMakeFiles/
+cmake_install.cmake
+CMakeCache.txt
+Makefile
+
+# bin
+/*/bin/
+/*/pic/
