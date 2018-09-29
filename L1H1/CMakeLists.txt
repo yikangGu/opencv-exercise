@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(L1H1)
 
+set(OpenCV_DIR "F:/Privacy/ProgramFile/Github/opencv/install/x64/vc15/lib")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
