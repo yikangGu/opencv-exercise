@@ -15,12 +15,11 @@ end
 
 dilateImg = imdilate(binaryImg,strel('square',40));
 cannyImg = edge(dilateImg,'Canny');
-
 [B,L] = bwboundaries(cannyImg,'noholes');
-rgbImg = ind2rgb(cannyImg, dilateImg);
 
 imshow(label2rgb(~L, @white, [0,0,0]))
 hold on
+
 for k = 1:length(B)
    boundary = B{k};
    plot(boundary(:,2), boundary(:,1), 'r', 'LineWidth', 2)
