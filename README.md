@@ -10,8 +10,9 @@ OpenCV version : 3.4.1
 
 ``` text
 ./
-  src/         - source code
-  data/        - sample images used for testing
-  reference/   - external code that may be useful
-  (user)/      - the user who the code belongs
+  (class)/
+    src/        - source code
+    Q&A/        - the question and answer
+    folder/     - data needed for the answer 
+    (user)/     - the user who the code belongs
 ```
