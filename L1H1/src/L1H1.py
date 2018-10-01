@@ -8,6 +8,7 @@ def main():
     # this is numpy array [] operator
     img[img == 2] = 255
 
+    img = img.copy()
     kernel = np.ones((5, 5), np.uint8)
     dilateImg = cv2.dilate(img, kernel, iterations=10)
 
