@@ -13,6 +13,8 @@ OpenCV version : 3.4.1
   (class)/
     src/        - source code
     Q&A/        - the question and answer
-    folder/     - data needed for the answer 
-    (user)/     - the user who the code belongs
+    folder/     - data needed for the answer
+  (user)/       - the user who the code belongs
+    (class)/    - class
+      src/        - user's source code
 ```
