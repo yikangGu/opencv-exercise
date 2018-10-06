@@ -13,14 +13,15 @@ kernel = np.ones((5, 5), np.uint8)
 dilateImg = cv2.dilate(img, kernel, iterations=6)
 
 dilateImg, contours, hierarchy = cv2.findContours(
-    dilateImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    dilateImg, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
+drawing = cv2.cvtColor(dilateImg, cv2.COLOR_GRAY2BGR)
 # Draw the contours except the biggest one (edge)
-cv2.drawContours(dilateImg, contours[:-1], 3, (0, 0, 255), 3)
+cv2.drawContours(drawing, contours[:-1], -1, (0, 0, 255), 3)
 
 # Print the number of  objectives / len of contours
-print "There are %d objectives." % (len(contours)-1)
+print ("There are %d objectives." % (len(contours)-1))
 
-cv2.imshow('L1H1', dilateImg)
+cv2.imshow('L1H1', drawing)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
