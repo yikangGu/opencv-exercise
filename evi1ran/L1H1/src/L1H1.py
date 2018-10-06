@@ -10,8 +10,10 @@ img = cv2.imread('Q1.png')
 b, g, r = cv2.split(img)
 # Merge a new picture to show the objectives
 img2 = cv2.merge([b-1,g-1,r-1])
+kernel = np.ones((5, 5), np.uint8)
+erodeImg = cv2.erode(img2, kernel, iterations=6)
 # Change the picture to gray picture
-gray =  cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
+gray =  cv2.cvtColor(erodeImg,cv2.COLOR_BGR2GRAY)
 # Change the picture to binary picture by threshold function
 ret, binary = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
 # Recognize the contours
