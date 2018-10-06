@@ -10,6 +10,7 @@
 .vscode/
 
 # CMAKE
+/*/build/
 CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
