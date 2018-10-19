@@ -30,14 +30,35 @@ int main(int argc, char const *argv[])
     cv::Mat imgBG = src.clone();
     imgBG.setTo(255, binary);
 
+    cv::Mat grayImg;
+    cv::cvtColor(imgBG, grayImg, cv::COLOR_BGR2GRAY);
+
     cv::Mat dilateImg, kernel;
     kernel = cv::getStructuringElement(CV_SHAPE_RECT, cv::Size(3, 3));
-    cv::dilate(imgBG, dilateImg, kernel, cv::Point(-1, -1), 1);
+    cv::dilate(grayImg, dilateImg, kernel, cv::Point(-1, -1), 1);
+
+    // find edge
+    cv::Mat canny;
+    cv::Canny(dilateImg, canny, 100, 200);
+
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(canny, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+
+    // convect grey to bgr for drawing color in the image.
+    cv::Mat drawing;
+    cv::cvtColor(canny, drawing, cv::COLOR_GRAY2BGR);
+
+    // contours.size() -1  is means that abandon the biggest one(the last one)
+    for (size_t idx = 0; idx < contours.size() - 1; idx++)
+    {
+        cv::drawContours(drawing, contours, idx, cv::Scalar(0, 0, 255));
+    }
+    std::cout << "couter : " << contours.size() - 1 << std::endl;
 
     while (true)
     {
-        cv::imshow("src", src);
-        cv::imshow("dilateImg", dilateImg);
+        cv::imshow("canny", canny);
+        cv::imshow("drawing", drawing);
         if (cv::waitKey(1) == 27)
             break;
     }

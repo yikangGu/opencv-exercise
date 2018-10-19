@@ -1,4 +1,4 @@
-img = imread('../folder/1.jpg');
+img = imread('../folder/fig1.jpg');
 % or use imbinarize func
 binaryImg = rgb2gray(img);
 [rows, cols] = size(binaryImg);

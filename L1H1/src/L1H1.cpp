@@ -8,7 +8,7 @@
 main()
 {
     cv::Mat img;
-    img = cv::imread("folder/fig1.jpg", 0);
+    img = cv::imread("folder/1.jpg", 0);
 
     if (img.empty())
     {

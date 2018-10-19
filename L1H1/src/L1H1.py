@@ -1,9 +1,9 @@
-import numpy as np
+ import numpy as np
 import cv2
 
 
 def main():
-    img = cv2.imread("folder/fig1.jpg", 0)
+    img = cv2.imread("folder/1.jpg", 0)
 
     # this is numpy array [] operator
     img[img == 2] = 255
