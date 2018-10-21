@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
 
     while (true)
     {
-        cv::imshow("src", src);
+        cv::imshow("src", grayBG);
         if (cv::waitKey(1) == 27)
             break;
     }
