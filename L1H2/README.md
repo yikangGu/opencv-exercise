@@ -1,12 +1,4 @@
-# Reading Tips
-
-This shows how i code the project.
-
-Reading order ： **split.cpp** -> **inRang.cpp** -> **edge.cpp**
-
----
-
-## Function review
+# Function review
 
 split(), Mat.setTo(), minEnclosingCircle(), circle(), inRange(), Canny(), floodfill()
 
