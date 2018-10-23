@@ -2,6 +2,8 @@ img = imread('../folder/1.jpg');
 gray = rgb2gray(img);
 canny = edge(gray, 'canny');
 dilate = imdilate(canny, strel('square', 10));
+
+% similar to the floodfill() function in python
 fill = imfill(dilate, [1 1], 4);
 
 % find Contours
@@ -9,6 +11,9 @@ fill = imfill(dilate, [1 1], 4);
 disp(length(B));
 
 drawing = label2rgb(L, @white, [0,0,0]);
+
+% set the position of the image where will be show
+% here is mean that the image will show at the left side
 subplot(1,2,1);
 imshow(drawing);
 
@@ -19,8 +24,9 @@ for i = 1:length(B)
 end
 
 % see : https://stackoverflow.com/questions/27192048/equivalent-threshold-function-of-opencv-in-matlab
-% equals the inRange() function in python
-minval = [0, 0, 100];
+% similar to the inRange() function in python
+% range = [R, G, B];
+val = [0, 0, 100];
 maxval = [40, 30, 255];
 blue = true(size(img,1), size(img,2));
 for p = 1 : 3
@@ -36,6 +42,7 @@ disp(length(B));
 s = regionprops(blueImgLabel, 'Centroid');
 centroids = cat(1, s.Centroid);
 
+% here is mean that will show at the right side
 subplot(1,2,2);
 imshow(img);
 hold on
