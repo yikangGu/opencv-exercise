@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 # Read the picture
-img = cv2.imread('Q1.png')
+img = cv2.imread('L1H1.png')
 # Separate the RGB plane
 b, g, r = cv2.split(img)
 # Merge a new picture to show the objectives

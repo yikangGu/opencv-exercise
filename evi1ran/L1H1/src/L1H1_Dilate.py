@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 
-img = cv2.imread('Q1.png', 0)
+img = cv2.imread('L1H1.png', 0)
 # numpy traverse all the elements and convert 2 to 255
 img[img == 2] = 255
 
