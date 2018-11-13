@@ -19,3 +19,6 @@ Makefile
 # bin
 /*/bin/
 /*/pic/
+
+# ??
+.DS_Store
