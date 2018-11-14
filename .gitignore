@@ -21,4 +21,4 @@ Makefile
 /*/pic/
 
 # ??
-.DS_Store
+*.DS_Store
