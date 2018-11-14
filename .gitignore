@@ -20,5 +20,5 @@ Makefile
 /*/bin/
 /*/pic/
 
-# ??
+# MacOSX
 *.DS_Store
