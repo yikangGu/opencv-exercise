@@ -2,6 +2,7 @@
 *.tex
 *.aux
 *.log
+*.synctex.gz
 
 # PPT
 *.pptx

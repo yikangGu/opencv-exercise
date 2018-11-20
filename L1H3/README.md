@@ -1,7 +1,11 @@
 
 # Requirements
 
-## tracking the green ball and draw a dot to predict the ball's position in the future
+## Deadline : 11/27
+
+## tracking the green ball and draw a rectangle around the ball
+
+you can try to challenge the L2H1 if you complete it.
 
 <div align="center">
   <img src=folder/1.gif width="720px"/>
@@ -15,6 +19,6 @@ capture.get(),
 see : [weicao1990](https://blog.csdn.net/weicao1990/article/details/53379881)
 
 folder/1.gif from
-[WhyEngine](https://www.cnblogs.com/WhyEngine/p/4315612.html)
+[wuyuqiao](https://github.com/wuyuqiao/computationalphysics_N2013301020142)
 
 thanks to all contributors
