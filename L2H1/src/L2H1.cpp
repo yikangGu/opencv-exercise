@@ -11,7 +11,7 @@ using namespace cv;
 using namespace std;
 
 vector<Point> PRES;
-int PREPOINTS = 4;
+int PREPOINTS = 5;
 int FITTIMES = 3;
 
 /** 
