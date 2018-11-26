@@ -11,8 +11,8 @@ using namespace cv;
 using namespace std;
 
 vector<Point> PRES;
-int PREPOINTS = 5;
-int FITTIMES = 2;
+int PREPOINTS = 4;
+int FITTIMES = 3;
 
 /** 
  * predict X = 2*X(n) - X(n-1)
@@ -43,15 +43,14 @@ bool curveFit(vector<Point> points, int xn, Mat &A)
     Mat X = Mat::zeros(rows, xn, CV_64FC1);
     Mat Y = Mat::zeros(rows, 1, CV_64FC1);
 
-    for (int i = 0; i < rows; ++i)
+    for (int i = 0; i < rows; i++)
     {
         Y.at<double>(i, 0) = points[i].y;
     }
-    // cout << "Y : " << Y << endl;
 
-    for (int i = 0; i < rows; ++i)
+    for (int i = 0; i < rows; i++)
     {
-        for (int j = 0; j < xn; ++j)
+        for (int j = 0; j < xn; j++)
         {
             X.at<double>(i, j) = pow(points[i].x, j);
         }
@@ -60,7 +59,10 @@ bool curveFit(vector<Point> points, int xn, Mat &A)
     if (Y.empty() || X.empty())
         return false;
 
-    A = (X.t() * X).inv() * X.t() * Y;
+    if (xn == rows)
+        A = X.inv() * Y;
+    else
+        A = (X.t() * X).inv() * X.t() * Y;
 
     if (A.empty())
         return false;
@@ -90,8 +92,6 @@ int main(int argc, char const *argv[])
 
     Scalar minG(35, 43, 46);
     Scalar maxG(77, 255, 255);
-
-    capture.set(CV_CAP_PROP_POS_FRAMES, 30);
 
     int cur;
     Mat hsv, g;
@@ -144,7 +144,6 @@ int main(int argc, char const *argv[])
         if (PRES.size() == PREPOINTS)
         {
             curveFit(PRES, FITTIMES, params);
-            // cout << "params : " << params << endl;
 
             curP.x = getPredictX(PRES);
             curP.y = 0;
@@ -169,7 +168,6 @@ int main(int argc, char const *argv[])
         if (cur == maxFrame - 1)
         {
             capture.set(CV_CAP_PROP_POS_FRAMES, 0);
-            // cout << "set 0" << endl;
         }
 
         if (waitKey(0) == 27)
