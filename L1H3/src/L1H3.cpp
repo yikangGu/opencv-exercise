@@ -13,10 +13,19 @@ using namespace std;
 vector<Point> PRES;
 int PREPOINTS = 5;
 int FITTIMES = 3;
+int EXTEND = 20;
+
+bool isFollowing = false;
+Rect preRoiG;
+
+bool polynomial = 0; // polynomial fitting prediction
+bool vvsv = 1;       // 2-D accelerate vector prediction
+bool FITMETHOD = polynomial;
 
 /** 
- * predict X = 2*X(n) - X(n-1)
- * 另每一帧为 t = 1
+ * 加速度预测
+ *  X = 2*X(n) - X(n-1)
+ * 令另每一帧为 t = 1
  * 易得 加速度 a = (X(n) - X(n-1)) / t , (t=1)
  * 由 V(t) = V(0) + a*t 得
  *  X(n+1) = X(n) + X(n) - X(n-1)
@@ -24,6 +33,14 @@ int FITTIMES = 3;
 int getPredictX(vector<Point> preious)
 {
     return (2 * preious[preious.size() - 1].x - preious[preious.size() - 2].x);
+}
+
+Point2i get2vsv(vector<Point> preious)
+{
+    Point2i pre;
+    pre.x = 2 * preious[preious.size() - 1].x - preious[preious.size() - 2].x;
+    pre.y = 2 * preious[preious.size() - 1].y - preious[preious.size() - 2].y;
+    return pre;
 }
 
 /** 
@@ -100,6 +117,14 @@ int main(int argc, char const *argv[])
     Mat drawing;
     Rect rect;
 
+    Mat roiG;
+
+    int rowStart;
+    int colStart;
+    int rowEnd;
+    int colEnd;
+    bool checkFind;
+
     Mat params;
     Point2d preP, curP;
     preP.x = 0;
@@ -109,7 +134,7 @@ int main(int argc, char const *argv[])
     while (true)
     {
         cur = capture.get(CV_CAP_PROP_POS_FRAMES);
-        cout << "cur : " << cur << endl;
+        cout << "cur : " << cur << "    ";
         capture >> src;
 
         if (src.empty())
@@ -118,39 +143,104 @@ int main(int argc, char const *argv[])
             return -1;
         }
 
+        // preprocessing 
         cvtColor(src, hsv, COLOR_BGR2HSV);
         inRange(hsv, minG, maxG, g);
-
         erode(g, g, kernel, Point(-1, -1), 3);
         dilate(g, g, kernel, Point(-1, -1), 3);
 
-        findContours(g, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-        cvtColor(g, drawing, cv::COLOR_GRAY2BGR);
-
-        for (size_t idx = 0; idx < contours.size(); idx++)
+        if (isFollowing)
         {
-            rect = boundingRect(contours[idx]);
-            if (isSquare(rect, 0.5))
+            // processing after finding the object and get the ROI img
+            rowStart = preRoiG.y - EXTEND;
+            colStart = preRoiG.x - EXTEND;
+            rowEnd = preRoiG.y + preRoiG.height + EXTEND;
+            colEnd = preRoiG.x + preRoiG.width + EXTEND;
+
+            if (rowStart < 0) rowStart = 0;
+            if (colStart < 0) colStart = 0;
+            if (rowEnd > hsv.rows) rowEnd = hsv.rows;
+            if (colEnd > hsv.cols) colEnd = hsv.cols;
+
+            roiG = g(Range(rowStart, rowEnd), Range(colStart, colEnd));
+            findContours(roiG, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+            cvtColor(g, drawing, cv::COLOR_GRAY2BGR);
+
+            checkFind = false;
+            for (size_t idx = 0; idx < contours.size(); idx++)
             {
-                rectangle(drawing, rect, Scalar(0, 255, 0), 1);
-                // if (cur % 3 == 0)
-                // {
-                PRES.push_back(Point(rect.x + (int)(rect.width / 2),
-                                     rect.y + (int)(rect.height / 2)));
-                // }
+                rect = boundingRect(contours[idx]);
+                rect.x = rect.x + colStart;
+                rect.y = rect.y + rowStart;
+
+                if (isSquare(rect, 0.5))
+                {
+                    rectangle(drawing,
+                              Rect(rect.x, rect.y, rect.width, rect.height),
+                              Scalar(0, 255, 0), 1);
+                    PRES.push_back(Point(rect.x + (int)(rect.width / 2),
+                                         rect.y + (int)(rect.height / 2)));
+                    isFollowing = true;
+                    checkFind = true;
+                    preRoiG = rect;
+                    cout << "following now" << endl;
+                    break;
+                }
+            }
+
+            if (checkFind == false)
+            {
+                cout << "missing now" << endl;
+                isFollowing = false;
+            }
+        }
+        else
+        {
+            // processing if can not find the object
+            findContours(g, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+            cvtColor(g, drawing, cv::COLOR_GRAY2BGR);
+
+            checkFind = false;
+            for (size_t idx = 0; idx < contours.size(); idx++)
+            {
+                rect = boundingRect(contours[idx]);
+                if (isSquare(rect, 0.5))
+                {
+                    rectangle(drawing, rect, Scalar(0, 255, 0), 1);
+                    PRES.push_back(Point(rect.x + (int)(rect.width / 2),
+                                         rect.y + (int)(rect.height / 2)));
+                    isFollowing = true;
+                    checkFind = true;
+                    preRoiG = rect;
+                    cout << "find" << endl;
+                    break;
+                }
+            }
+
+            if (checkFind == false)
+            {
+                cout << "can't find object" << endl;
             }
         }
 
         if (PRES.size() == PREPOINTS)
         {
-            curveFit(PRES, FITTIMES, params);
-
-            curP.x = getPredictX(PRES);
-            curP.y = 0;
-            for (int j = 0; j < FITTIMES + 1; ++j)
+            if (FITMETHOD)
             {
-                curP.y += params.at<double>(j, 0) * pow(curP.x, j);
+                curP = get2vsv(PRES);
             }
+            else
+            {
+                curveFit(PRES, FITTIMES, params);
+
+                curP.x = getPredictX(PRES);
+                curP.y = 0;
+                for (int j = 0; j < FITTIMES + 1; ++j)
+                {
+                    curP.y += params.at<double>(j, 0) * pow(curP.x, j);
+                }
+            }
+
             circle(drawing, curP, 2, Scalar(0, 0, 255), CV_FILLED, CV_AA);
             circle(drawing, preP, 2, Scalar(255, 0, 0), CV_FILLED, CV_AA);
             preP = curP;
@@ -163,6 +253,8 @@ int main(int argc, char const *argv[])
             PRES.erase(PRES.begin());
         }
 
+        if (!roiG.empty())
+            imshow("roi", roiG);
         imshow("drawing", drawing);
 
         if (cur == maxFrame - 1)
