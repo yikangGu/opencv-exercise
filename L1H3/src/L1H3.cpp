@@ -20,12 +20,12 @@ Rect preRoiG;
 
 bool polynomial = 0; // polynomial fitting prediction
 bool vvsv = 1;       // 2-D accelerate vector prediction
-bool FITMETHOD = polynomial;
+bool FITMETHOD = vvsv;
 
 /** 
  * 加速度预测
  *  X = 2*X(n) - X(n-1)
- * 令另每一帧为 t = 1
+ * 令每一帧为 t = 1
  * 易得 加速度 a = (X(n) - X(n-1)) / t , (t=1)
  * 由 V(t) = V(0) + a*t 得
  *  X(n+1) = X(n) + X(n) - X(n-1)
