@@ -9,7 +9,7 @@
 int main(int argc, char const *argv[])
 {
     cv::Mat src;
-    src = cv::imread("folder/1.png");
+    src = cv::imread("d://2.jpg");
 
     if (src.empty())
     {

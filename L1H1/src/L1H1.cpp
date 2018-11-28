@@ -46,7 +46,7 @@ main()
     cv::findContours(dilateImg, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 
     // convect grey to bgr for drawing color in the image.
-    cv::Mat drawing;
+	cv::Mat drawing;
     cv::cvtColor(canny, drawing, cv::COLOR_GRAY2BGR);
 
     // contours.size() -1  is means that abandon the biggest one(the last one)

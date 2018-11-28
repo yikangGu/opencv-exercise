@@ -1,4 +1,4 @@
-img = imread('../folder/1.jpg');
+img = imread('1.jpg');
 gray = rgb2gray(img);
 canny = edge(gray, 'canny');
 dilate = imdilate(canny, strel('square', 10));
@@ -30,7 +30,7 @@ val = [0, 0, 100];
 maxval = [40, 30, 255];
 blue = true(size(img,1), size(img,2));
 for p = 1 : 3
-    blue = blue & (img(:,:,p) >= minval(p) & img(:,:,p) <= maxval(p));
+    blue = blue & (img(:,:,p) >= min(p) & img(:,:,p) <= maxval(p));
 end
 
 % find contours
