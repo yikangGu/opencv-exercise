@@ -4,7 +4,7 @@
 import cv2
 import numpy as np
 
-img = cv2.imread('l1h2.png')
+img = cv2.imread('L1H2.png')
 b, g, r = cv2.split(img)
 img2 = b - g
 img2[img2 <= 249] = 0
