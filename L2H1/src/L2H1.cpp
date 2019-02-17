@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -30,16 +33,16 @@ bool FITMETHOD = vvsv;
  * 由 V(t) = V(0) + a*t 得
  *  X(n+1) = X(n) + X(n) - X(n-1)
 **/
-int getPredictX(vector<Point> preious)
+int getPredictX(vector<Point> prevous)
 {
-    return (2 * preious[preious.size() - 1].x - preious[preious.size() - 2].x);
+    return (2 * prevous[prevous.size() - 1].x - prevous[prevous.size() - 2].x);
 }
 
-Point2i get2vsv(vector<Point> preious)
+Point2i get2vsv(vector<Point> prevous)
 {
     Point2i pre;
-    pre.x = 2 * preious[preious.size() - 1].x - preious[preious.size() - 2].x;
-    pre.y = 2 * preious[preious.size() - 1].y - preious[preious.size() - 2].y;
+    pre.x = 2 * prevous[prevous.size() - 1].x - prevous[prevous.size() - 2].x;
+    pre.y = 2 * prevous[prevous.size() - 1].y - prevous[prevous.size() - 2].y;
     return pre;
 }
 
@@ -92,7 +95,7 @@ bool isSquare(Rect rect, float thresh)
            (rect.width < rect.height * (1 + thresh));
 }
 
-int main(int argc, char const *argv[])
+int solve()
 {
     VideoCapture capture("folder/1.mp4");
 
@@ -134,12 +137,12 @@ int main(int argc, char const *argv[])
     while (true)
     {
         cur = capture.get(CV_CAP_PROP_POS_FRAMES);
-        cout << "cur : " << cur << "    ";
+        // cout << "cur : " << cur << "    ";
         capture >> src;
 
         if (src.empty())
         {
-            cout << "video is over" << endl;
+            // cout << "video is over" << endl;
             return -1;
         }
 
@@ -181,14 +184,14 @@ int main(int argc, char const *argv[])
                     isFollowing = true;
                     checkFind = true;
                     preRoiG = rect;
-                    cout << "following now" << endl;
+                    // cout << "following now" << endl;
                     break;
                 }
             }
 
             if (checkFind == false)
             {
-                cout << "missing now" << endl;
+                // cout << "missing now" << endl;
                 isFollowing = false;
             }
         }
@@ -209,14 +212,14 @@ int main(int argc, char const *argv[])
                     isFollowing = true;
                     checkFind = true;
                     preRoiG = rect;
-                    cout << "find" << endl;
+                    // cout << "find" << endl;
                     break;
                 }
             }
 
             if (checkFind == false)
             {
-                cout << "can't find object" << endl;
+                // cout << "can't find object" << endl;
             }
         }
 
@@ -250,20 +253,36 @@ int main(int argc, char const *argv[])
             PRES.erase(PRES.begin());
         }
 
-        if (!roiG.empty())
-            imshow("roi", roiG);
-        imshow("drawing", drawing);
+        // if (!roiG.empty())
+        //     imshow("roi", roiG);
+        // imshow("drawing", drawing);
 
         if (cur == maxFrame - 1)
         {
+            break;
             capture.set(CV_CAP_PROP_POS_FRAMES, 0);
         }
 
-        if (waitKey(0) == 27)
-            break;
+        // if (waitKey(0) == 27)
+        // break;
     }
 
     cv::destroyAllWindows();
     capture.release();
     return 0;
+}
+
+int main(int argc, char const *argv[])
+{
+    clock_t start, end;
+    double duration;
+
+    start = clock();
+    int error = solve();
+    end = clock();
+
+    duration = (double)(end - start) / CLOCKS_PER_SEC;
+    cout << "Elapsed time : " << duration << endl;
+
+    return error;
 }
