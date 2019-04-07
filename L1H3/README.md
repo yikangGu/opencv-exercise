@@ -1,21 +1,20 @@
 
-# Requirements
+# L1H3
 
-## Deadline : 11/27
+## Question
 
-## tracking the green ball and draw a rectangle around the ball
+tracking the green ball and draw a rectangle around the ball
 
 you can try to challenge the L2H1 if you complete it.
 
 <div align="center">
-  <img src=folder/1.gif width="720px"/>
+  <img src=img/1.gif width="720px"/>
 </div>
 
-# Function reference
+---
 
-VideoCapture,
+## Reference
 
-capture.get(),
 see : [weicao1990](https://blog.csdn.net/weicao1990/article/details/53379881)
 
 folder/1.gif from
