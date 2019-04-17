@@ -20,6 +20,7 @@ Makefile
 # bin
 /*/bin/
 /*/pic/
+/*/src/
 
 # MacOSX
 *.DS_Store
