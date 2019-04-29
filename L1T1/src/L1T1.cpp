@@ -44,13 +44,13 @@ int main(int argc, char const *argv[])
     cv::Mat gray;
     cv::cvtColor(src, gray, CV_BGR2GRAY);
 
-/** black ball process********************************************************/
+// black ball process
     cv::Mat ballcanny, hole;
     cv::Canny(gray, ballcanny, 127, 255);
     Hole(ballcanny, hole);
     cv::erode(hole, hole, kernel, cv::Point(-1, -1), 2);
 
-    /** find ipad proc********************************************************/
+    // find ipad proc
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(hole, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 
@@ -60,9 +60,8 @@ int main(int argc, char const *argv[])
     {
         rotate = cv::minAreaRect(contours[idx]);
         double angle = abs(rotate.angle);
-        double rate = rotate.size.height / rotate.size.width;
 
-        if ((50 < angle && angle < 70) && (0.588 < rate && rate < 0.769) || (1.3 < rate && rate < 1.7))
+        if (50 < angle && angle < 70)
             candidate_rect.push_back(rotate.boundingRect());
     }
 
@@ -72,7 +71,7 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    /** find ball proc********************************************************/
+    // find ball proc
     cv::Mat ipad_roi = ballcanny(candidate_rect[0]);
     Hole(ipad_roi, ipad_roi, 1);
 
@@ -92,7 +91,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    /** sort and draw*********************************************************/
+    // sort and draw
     std::sort(candidate_ball.begin(), candidate_ball.end(), RectXCmp);
     for (size_t idx = 0; idx < candidate_ball.size() - 1; idx++)
     {
@@ -103,13 +102,13 @@ int main(int argc, char const *argv[])
                  cv::Scalar(0, 0, 255));
     }
 
-/** find map process**********************************************************/
+// find map process
 
     cv::Mat bin;
     cv::threshold(gray, bin, 127, 255, cv::THRESH_BINARY);
     cv::erode(bin, bin, kernel);
 
-    /** find map proc*********************************************************/
+    // find map proc
     contours.clear();
     cv::findContours(bin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
     double maxContour = 0;
@@ -126,16 +125,16 @@ int main(int argc, char const *argv[])
     cv::Rect maxContour_rect = cv::boundingRect(contours[maxContour_idx]);
     cv::Mat map_roi = gray(maxContour_rect);
 
-    /** show and draw*********************************************************/
+    // show and draw
     cv::Mat map_canny;
     cv::Canny(map_roi, map_canny, 0, 2);
     cv::dilate(map_canny, map_canny, kernel);
 
     cv::Mat zeros = cv::Mat::zeros(src.rows + 2, src.cols + 2, CV_8UC1);
-    int roi_x = contours[maxContour_idx][0].x;
-    int roi_y = contours[maxContour_idx][0].y;
-    map_canny.copyTo(zeros(cv::Rect(cv::Point(roi_x, roi_y), map_roi.size())));
-    cv::floodFill(src, zeros, cv::Point(roi_x, roi_y), cv::Scalar(255, 255, 255));
+    int x = maxContour_rect.x;
+    int y = maxContour_rect.y;
+    map_canny.copyTo(zeros(maxContour_rect));
+    cv::floodFill(src, zeros, cv::Point(x, y), cv::Scalar(255, 255, 255));
 
     while (true)
     {
