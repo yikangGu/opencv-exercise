@@ -73,7 +73,7 @@ bool BBProcess(Mat src)
     vector<Vec4i> binary_hierarchy;
     findContours(bin, binary_contours, binary_hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_NONE);
 
-    vector<Point2i> candidate_list;
+    vector<Point2i> candidate_armor;
     vector<int> candidate_R;
     for (size_t idx = 0; idx < binary_hierarchy.size(); idx++)
     {
@@ -83,7 +83,7 @@ bool BBProcess(Mat src)
                 binary_hierarchy[idx][1] == -1)
             {
                 int father_idx = binary_hierarchy[idx][3];
-                candidate_list.push_back(Point(idx, father_idx));
+                candidate_armor.push_back(Point(idx, father_idx));
             }
 
             if (binary_hierarchy[idx][3] == -1)
@@ -95,10 +95,10 @@ bool BBProcess(Mat src)
 
     int leaf_counter = 0;
     RotatedRect cur_armor_minRect;
-    for (size_t leaf_idx = 0; leaf_idx < candidate_list.size(); leaf_idx++)
+    for (size_t armor_idx = 0; armor_idx < candidate_armor.size(); armor_idx++)
     {
-        vector<Point> armor = binary_contours[candidate_list[leaf_idx].x];
-        vector<Point> leaf = binary_contours[candidate_list[leaf_idx].y];
+        vector<Point> armor = binary_contours[candidate_armor[armor_idx].x];
+        vector<Point> leaf = binary_contours[candidate_armor[armor_idx].y];
         if (IsArmor(armor) && IsLeaf(leaf))
         {
             leaf_counter += 1;
@@ -106,7 +106,7 @@ bool BBProcess(Mat src)
 
 #ifdef DEBUG_LEAF
             cout << "[Find Leaf!]" << endl;
-            drawContours(src, binary_contours, candidate_list[leaf_idx].x, Scalar(0, 0, 255));
+            drawContours(src, binary_contours, candidate_armor[armor_idx].x, Scalar(0, 0, 255));
 #endif
         }
     }

@@ -1,62 +1,37 @@
 #include <iostream>
 #include <vector>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/core.hpp>
+#include <opencv4/opencv2/opencv.hpp>
+#include <opencv4/opencv2/highgui/highgui.hpp>
+#include <opencv4/opencv2/imgproc/imgproc.hpp>
+#include <opencv4/opencv2/core/core.hpp>
 
-void countHist(cv::Mat src, std::vector<int> &counter, int mode = 0)
+bool RectXCmp(const cv::RotatedRect &first, const cv::RotatedRect &second)
 {
-    if (mode == 0)
-    {
-        for (int x = 0; x < src.cols; x++)
-        {
-            counter.push_back(cv::countNonZero(src.col(x)));
-        }
-    }
-    else if (mode == 1)
-    {
-        for (int y = 0; y < src.rows; y++)
-        {
-            counter.push_back(cv::countNonZero(src.row(y)));
-        }
-    }
+    if (first.center.x < second.center.x)
+        return true;
+    return false;
 }
 
-void getPeeks(std::vector<int> counter, std::vector<int> &peeks, int thresh)
+void Hole(const cv::Mat src, cv::Mat &dst, int mode = 0)
 {
-    int flagStart = 0;
-    int flagEnd = 0;
+    cv::Size size = src.size();
+    cv::Mat cut, temp;
 
-    for (int i = 0; i < counter.size() - 1; i++)
-    {
-        if (counter[i] > thresh)
-        {
-            flagStart = 1;
-            if (flagEnd == 0)
-            {
-                peeks.push_back(i);
-            }
-            flagEnd = 1;
-        }
-        else
-        {
-            if (flagStart == 1)
-            {
-                peeks.push_back(i);
-                flagStart = 0;
-            }
-            flagEnd = 0;
-        }
-    }
-    peeks.push_back(counter.size());
+    temp = cv::Mat::zeros(size.height + 2, size.width + 2, src.type());
+    src.copyTo(temp(cv::Range(1, size.height + 1), cv::Range(1, size.width + 1)));
+    cv::floodFill(temp, cv::Point(0, 0), cv::Scalar(255));
+    temp(cv::Range(1, size.height + 1), cv::Range(1, size.width + 1)).copyTo(cut);
+
+    if (mode == 0)
+        dst = src | (~cut);
+    else if (mode == 1)
+        dst = ~cut;
 }
 
 int main(int argc, char const *argv[])
 {
-    cv::Mat src;
-    src = cv::imread("folder/1.png");
+    cv::Mat src = cv::imread("img/1.png");
 
     if (src.empty())
     {
@@ -64,77 +39,109 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    // black ball process
-
-    // cv::Mat blackBinary;
-    // cv::inRange(src, cv::Scalar(82, 72, 65), cv::Scalar(83, 73, 66), blackBinary);
-
-    cv::Mat ballsrc = src(cv::Range(411, src.rows), cv::Range(700, src.cols));
-
-    cv::Mat ballgray;
-    cv::cvtColor(ballsrc, ballgray, CV_BGR2GRAY);
-
-    cv::Mat binary;
-    cv::threshold(ballgray, binary, 127, 255, CV_THRESH_BINARY);
-
-    cv::floodFill(binary, cv::Point(0, 0), cv::Scalar(0, 0, 0));
-    cv::floodFill(binary, cv::Point(200, 0), cv::Scalar(0, 0, 0));
-
-    std::vector<int> hist;
-    countHist(binary, hist, 1);
-
-    std::vector<int> hpeeks;
-    getPeeks(hist, hpeeks, 20);
-
-    std::vector<int> vist;
-    countHist(binary(cv::Range(hpeeks[0], hpeeks[1]), cv::Range(0, binary.cols)), vist, 0);
-
-    std::vector<int> vpeeks;
-    getPeeks(vist, vpeeks, 20);
-
-    cv::Mat roiSrc = binary(cv::Range(hpeeks[0], hpeeks[1]), cv::Range(vpeeks[0], vpeeks[1]));
-
-    std::vector<std::vector<cv::Point>> contours;
-    std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(roiSrc, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-
-    float _;
-    cv::Point2f fristBall, secondBall;
-    int order[6] = {2, 1, 4, 3, 6, 5};
-
-    for (size_t idx = 0; idx < 5; idx++)
-    {
-        cv::minEnclosingCircle(contours[order[idx]], fristBall, _);
-        cv::minEnclosingCircle(contours[order[idx + 1]], secondBall, _);
-        cv::line(
-            src,
-            cv::Point((int)fristBall.x + vpeeks[0] + 700, (int)fristBall.y + hpeeks[0] + 411),
-            cv::Point((int)secondBall.x + vpeeks[0] + 700, (int)secondBall.y + hpeeks[0] + 411),
-            cv::Scalar(0, 0, 255));
-    }
-
-    // find map process
-    cv::Mat mapsrc = src(cv::Range(0, 410), cv::Range(700, src.cols));
+    cv::Mat kernel = cv::getStructuringElement(CV_SHAPE_RECT, cv::Size(3, 3));
 
     cv::Mat gray;
-    cv::cvtColor(mapsrc, gray, CV_BGR2GRAY);
+    cv::cvtColor(src, gray, CV_BGR2GRAY);
 
-    cv::Mat canny;
-    cv::Canny(gray, canny, 0, 2);
+/** black ball process********************************************************/
+    cv::Mat ballcanny, hole;
+    cv::Canny(gray, ballcanny, 127, 255);
+    Hole(ballcanny, hole);
+    cv::erode(hole, hole, kernel, cv::Point(-1, -1), 2);
 
-    cv::Mat dilate, kernel;
-    kernel = cv::getStructuringElement(CV_SHAPE_RECT, cv::Size(2, 2));
-    cv::dilate(canny, dilate, kernel, cv::Point(-1, -1), 1);
+    /** find ipad proc********************************************************/
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(hole, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+
+    std::vector<cv::Rect> candidate_rect;
+    cv::RotatedRect rotate;
+    for (size_t idx = 0; idx < contours.size(); idx++)
+    {
+        rotate = cv::minAreaRect(contours[idx]);
+        double angle = abs(rotate.angle);
+        double rate = rotate.size.height / rotate.size.width;
+
+        if ((50 < angle && angle < 70) && (0.588 < rate && rate < 0.769) || (1.3 < rate && rate < 1.7))
+            candidate_rect.push_back(rotate.boundingRect());
+    }
+
+    if (candidate_rect.size() < 1)
+    {
+        std::cout << "no match" << std::endl;
+        return -1;
+    }
+
+    /** find ball proc********************************************************/
+    cv::Mat ipad_roi = ballcanny(candidate_rect[0]);
+    Hole(ipad_roi, ipad_roi, 1);
+
+    cv::findContours(ipad_roi, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE,
+                     cv::Point(candidate_rect[0].x, candidate_rect[0].y));
+
+    std::vector<cv::RotatedRect> candidate_ball;
+    for (size_t idx = 0; idx < contours.size(); idx++)
+    {
+        rotate = cv::minAreaRect(contours[idx]);
+        double angle = abs(rotate.angle);
+
+        if (angle == 0)
+        {
+            cv::drawContours(src, contours, idx, cv::Scalar(0, 0, 255));
+            candidate_ball.push_back(rotate);
+        }
+    }
+
+    /** sort and draw*********************************************************/
+    std::sort(candidate_ball.begin(), candidate_ball.end(), RectXCmp);
+    for (size_t idx = 0; idx < candidate_ball.size() - 1; idx++)
+    {
+        // std::cout << " x[" << idx << "]: " << candidate_ball[idx].x << std::endl;
+        cv::line(src,
+                 cv::Point(candidate_ball[idx].center.x, candidate_ball[idx].center.y),
+                 cv::Point(candidate_ball[idx + 1].center.x, candidate_ball[idx + 1].center.y), 
+                 cv::Scalar(0, 0, 255));
+    }
+
+/** find map process**********************************************************/
+
+    cv::Mat bin;
+    cv::threshold(gray, bin, 127, 255, cv::THRESH_BINARY);
+    cv::erode(bin, bin, kernel);
+
+    /** find map proc*********************************************************/
+    contours.clear();
+    cv::findContours(bin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+    double maxContour = 0;
+    int maxContour_idx = 0;
+    for (size_t i = 0; i < contours.size(); i++)
+    {
+        double area = cv::contourArea(contours[i]);
+        if (maxContour < area)
+        {
+            maxContour = area;
+            maxContour_idx = i;
+        }
+    }
+    cv::Rect maxContour_rect = cv::boundingRect(contours[maxContour_idx]);
+    cv::Mat map_roi = gray(maxContour_rect);
+
+    /** show and draw*********************************************************/
+    cv::Mat map_canny;
+    cv::Canny(map_roi, map_canny, 0, 2);
+    cv::dilate(map_canny, map_canny, kernel);
 
     cv::Mat zeros = cv::Mat::zeros(src.rows + 2, src.cols + 2, CV_8UC1);
-    dilate.copyTo(zeros(cv::Rect(cv::Point(699, 0), mapsrc.size())));
-
-    cv::floodFill(src, zeros, cv::Point(750, 50), cv::Scalar(255, 255, 255));
+    int roi_x = contours[maxContour_idx][0].x;
+    int roi_y = contours[maxContour_idx][0].y;
+    map_canny.copyTo(zeros(cv::Rect(cv::Point(roi_x, roi_y), map_roi.size())));
+    cv::floodFill(src, zeros, cv::Point(roi_x, roi_y), cv::Scalar(255, 255, 255));
 
     while (true)
     {
-        cv::imshow("roiSrc", roiSrc);
         cv::imshow("src", src);
+        cv::imshow("map_canny", map_canny);
+        cv::imshow("ipad_roi", ipad_roi);
 
         if (cv::waitKey(1) == 27)
             break;

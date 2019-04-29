@@ -97,7 +97,7 @@ bool isSquare(Rect rect, float thresh)
 
 int solve()
 {
-    VideoCapture capture("folder/1.mp4");
+    VideoCapture capture("img/1.mp4");
 
     if (!capture.isOpened())
     {
@@ -137,12 +137,12 @@ int solve()
     while (true)
     {
         cur = capture.get(CV_CAP_PROP_POS_FRAMES);
-        // cout << "cur : " << cur << "    ";
+        cout << "cur : " << cur << "    ";
         capture >> src;
 
         if (src.empty())
         {
-            // cout << "video is over" << endl;
+            cout << "video is over" << endl;
             return -1;
         }
 
@@ -184,14 +184,14 @@ int solve()
                     isFollowing = true;
                     checkFind = true;
                     preRoiG = rect;
-                    // cout << "following now" << endl;
+                    cout << "following now" << endl;
                     break;
                 }
             }
 
             if (checkFind == false)
             {
-                // cout << "missing now" << endl;
+                cout << "missing now" << endl;
                 isFollowing = false;
             }
         }
@@ -212,14 +212,14 @@ int solve()
                     isFollowing = true;
                     checkFind = true;
                     preRoiG = rect;
-                    // cout << "find" << endl;
+                    cout << "find" << endl;
                     break;
                 }
             }
 
             if (checkFind == false)
             {
-                // cout << "can't find object" << endl;
+                cout << "can't find object" << endl;
             }
         }
 
@@ -253,18 +253,16 @@ int solve()
             PRES.erase(PRES.begin());
         }
 
-        // if (!roiG.empty())
-        //     imshow("roi", roiG);
-        // imshow("drawing", drawing);
+        if (!roiG.empty())
+            imshow("roi", roiG);
+        imshow("drawing", drawing);
 
         if (cur == maxFrame - 1)
         {
-            break;
             capture.set(CV_CAP_PROP_POS_FRAMES, 0);
         }
 
-        // if (waitKey(0) == 27)
-        // break;
+        if (waitKey(0) == 27) break;
     }
 
     cv::destroyAllWindows();
@@ -274,15 +272,15 @@ int solve()
 
 int main(int argc, char const *argv[])
 {
-    clock_t start, end;
-    double duration;
+    // clock_t start, end;
+    // double duration;
 
-    start = clock();
+    // start = clock();
     int error = solve();
-    end = clock();
+    // end = clock();
 
-    duration = (double)(end - start) / CLOCKS_PER_SEC;
-    cout << "Elapsed time : " << duration << endl;
+    // duration = (double)(end - start) / CLOCKS_PER_SEC;
+    // cout << "Elapsed time : " << duration << endl;
 
     return error;
 }

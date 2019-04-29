@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    VideoCapture capture("folder/1.mp4");
+    VideoCapture capture("img/1.mp4");
 
     if (!capture.isOpened())
     {

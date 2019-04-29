@@ -3,7 +3,7 @@ import cv2
 
 
 def main():
-    src = cv2.imread("folder/1.png")
+    src = cv2.imread("img/1.png")
 
     while True:
         cv2.imshow("src", src)
