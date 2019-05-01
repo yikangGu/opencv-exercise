@@ -118,6 +118,7 @@ int solve()
     vector<vector<Point>> contours;
 
     Mat drawing;
+    int counter = 0;
     Rect rect;
 
     Mat roiG;
@@ -133,7 +134,6 @@ int solve()
     preP.x = 0;
     preP.y = 0;
     int curPX;
-
     while (true)
     {
         cur = capture.get(CV_CAP_PROP_POS_FRAMES);
@@ -176,6 +176,7 @@ int solve()
 
                 if (isSquare(rect, 0.5))
                 {
+                    counter += 1;
                     rectangle(drawing,
                               Rect(rect.x, rect.y, rect.width, rect.height),
                               Scalar(0, 255, 0), 1);
@@ -259,6 +260,7 @@ int solve()
 
         if (cur == maxFrame - 1)
         {
+            cout << " accuracy: " << counter*1.0/maxFrame << "    ";
             capture.set(CV_CAP_PROP_POS_FRAMES, 0);
         }
 
