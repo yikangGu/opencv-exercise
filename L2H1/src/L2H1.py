@@ -6,7 +6,7 @@ import oe
 def main():
     isFollowing = False
 
-    curBallRoi = 0
+    curBallRoi = None
     preBallRoi = 0
     preBalls = []
     curTarget = (0, 0)
@@ -34,22 +34,30 @@ def main():
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             continue
 
-        hsv = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
-        G = cv2.inRange(hsv, minG, maxG)
-        G = cv2.erode(G, kernel, iterations=1)
-        G = cv2.dilate(G, kernel, iterations=1)
+        drawing = src.copy()
 
         if isFollowing is True:
-            drawing = cv2.cvtColor(G, cv2.COLOR_GRAY2BGR)
-            hs, he, ws, we = oe.extendRect(preBallRoi, G.shape, 0, 2)
-            curBallRoi = G[hs:he, ws:we]
+            hs, he, ws, we = oe.extendRect(preBallRoi, G.shape, 1, 20)
+            curBallRoi = src[hs:he, ws:we]
+
+            roiGray = cv2.cvtColor(curBallRoi, cv2.COLOR_BGR2GRAY)
+            _, roiBinary = cv2.threshold(roiGray, 127, 255, cv2.THRESH_BINARY_INV)
+            roiBinary = oe.Hole(roiBinary, 0)
+            roiBinary = cv2.erode(roiBinary, smallKernel, iterations=1)
+            roiBinary = cv2.dilate(roiBinary, smallKernel, iterations=1)
+
+            cv2.imshow("roiGray", roiGray)
+            cv2.imshow("roiBinary", roiBinary)
 
             contours, _ = cv2.findContours(
-                curBallRoi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE, offset=(ws, hs))
+                roiBinary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE, offset=(ws, hs))
 
             checkFind = False
             for contour in contours:
                 rect = cv2.boundingRect(contour)
+
+                if rect[2] < 5 and rect[3] < 5:
+                    continue
 
                 if oe.approxLenth(rect[2:4], 0.5):
                     cv2.rectangle(drawing, (rect[0], rect[1]), (
@@ -67,7 +75,10 @@ def main():
                 isFollowing = False
                 preBalls.clear()
         else:
-            drawing = cv2.cvtColor(G, cv2.COLOR_GRAY2BGR)
+            hsv = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+            G = cv2.inRange(hsv, minG, maxG)
+            G = cv2.erode(G, bigKernel, iterations=1)
+            G = cv2.dilate(G, bigKernel, iterations=1)
 
             contours, _ = cv2.findContours(
                 G, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -101,7 +112,6 @@ def main():
             preBalls.pop(0)
 
         print(" target: x:", curTarget[0], " y:", curTarget[1])
-        cv2.imshow("G", G)
         cv2.imshow("drawing", drawing)
 
         if curBallRoi is not None:
@@ -117,5 +127,7 @@ if __name__ == '__main__':
     minG = (35, 43, 46)
     maxG = (77, 255, 255)
 
-    kernel = np.ones((7, 7), np.uint8)
+    smallKernel = np.ones((3, 3), np.uint8)
+    bigKernel = np.ones((7, 7), np.uint8)
+
     main()

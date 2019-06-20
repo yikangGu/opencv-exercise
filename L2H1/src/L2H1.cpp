@@ -13,19 +13,19 @@
 using namespace cv;
 using namespace std;
 
-vector<Point> PRES;
-int PREPOINTS = 5;
-int FITTIMES = 3;
-int EXTEND = 20;
+vector <Point> PRES;
+int            PREPOINTS = 5;
+int            FITTIMES  = 3;
+int            EXTEND    = 20;
 
 bool isFollowing = false;
 Rect preRoiG;
 
 bool polynomial = 0; // polynomial fitting prediction
-bool vvsv = 1;       // 2-D accelerate vector prediction
-bool FITMETHOD = vvsv;
+bool vvsv       = 1;       // 2-D accelerate vector prediction
+bool FITMETHOD  = vvsv;
 
-/** 
+/**
  * 加速度预测
  *  X = 2*X(n) - X(n-1)
  * 令每一帧为 t = 1
@@ -33,12 +33,12 @@ bool FITMETHOD = vvsv;
  * 由 V(t) = V(0) + a*t 得
  *  X(n+1) = X(n) + X(n) - X(n-1)
 **/
-int getPredictX(vector<Point> prevous)
+int getPredictX(vector <Point> prevous)
 {
     return (2 * prevous[prevous.size() - 1].x - prevous[prevous.size() - 2].x);
 }
 
-Point2i get2vsv(vector<Point> prevous)
+Point2i get2vsv(vector <Point> prevous)
 {
     Point2i pre;
     pre.x = 2 * prevous[prevous.size() - 1].x - prevous[prevous.size() - 2].x;
@@ -46,7 +46,7 @@ Point2i get2vsv(vector<Point> prevous)
     return pre;
 }
 
-/** 
+/**
  * 多项式拟合
  * y = a0 + a1*X + a2*X^2 + ... + an*X^n
  * Mat(Y) = Mat(X)*Mat(A)
@@ -55,7 +55,7 @@ Point2i get2vsv(vector<Point> prevous)
  * 参考： https://blog.csdn.net/i_chaoren/article/details/79822574
  * 参考： https://www.cnblogs.com/narjaja/p/9304472.html
 **/
-bool curveFit(vector<Point> points, int xn, Mat &A)
+bool curveFit(vector <Point> points, int xn, Mat &A)
 {
     int rows = points.size();
     xn = xn + 1;
@@ -91,8 +91,7 @@ bool curveFit(vector<Point> points, int xn, Mat &A)
 
 bool isSquare(Rect rect, float thresh)
 {
-    return (rect.width > rect.height * (1 - thresh)) &&
-           (rect.width < rect.height * (1 + thresh));
+    return (rect.width > rect.height * (1 - thresh)) && (rect.width < rect.height * (1 + thresh));
 }
 
 int solve()
@@ -108,28 +107,28 @@ int solve()
     long maxFrame = capture.get(CV_CAP_PROP_FRAME_COUNT);
 
     Mat src, kernel;
-    kernel = getStructuringElement(CV_SHAPE_RECT, cv::Size(3, 3));
+    kernel       = getStructuringElement(CV_SHAPE_RECT, cv::Size(3, 3));
 
     Scalar minG(35, 43, 46);
     Scalar maxG(77, 255, 255);
 
-    int cur;
-    Mat hsv, g;
-    vector<vector<Point>> contours;
+    int                    cur;
+    Mat                    hsv, g;
+    vector <vector<Point>> contours;
 
-    Mat drawing;
-    int counter = 0;
+    Mat  drawing;
+    int  counter = 0;
     Rect rect;
 
     Mat roiG;
 
-    int rowStart;
-    int colStart;
-    int rowEnd;
-    int colEnd;
+    int  rowStart;
+    int  colStart;
+    int  rowEnd;
+    int  colEnd;
     bool checkFind;
 
-    Mat params;
+    Mat     params;
     Point2d preP, curP;
     preP.x = 0;
     preP.y = 0;
@@ -155,11 +154,11 @@ int solve()
         {
             rowStart = preRoiG.y - EXTEND;
             colStart = preRoiG.x - EXTEND;
-            rowEnd = preRoiG.y + preRoiG.height + EXTEND;
-            colEnd = preRoiG.x + preRoiG.width + EXTEND;
+            rowEnd   = preRoiG.y + preRoiG.height + EXTEND;
+            colEnd   = preRoiG.x + preRoiG.width + EXTEND;
 
-            if (rowStart < 0) rowStart = 0;
-            if (colStart < 0) colStart = 0;
+            if (rowStart < 0) rowStart    = 0;
+            if (colStart < 0) colStart    = 0;
             if (rowEnd > hsv.rows) rowEnd = hsv.rows;
             if (colEnd > hsv.cols) colEnd = hsv.cols;
 
@@ -177,14 +176,11 @@ int solve()
                 if (isSquare(rect, 0.5))
                 {
                     counter += 1;
-                    rectangle(drawing,
-                              Rect(rect.x, rect.y, rect.width, rect.height),
-                              Scalar(0, 255, 0), 1);
-                    PRES.push_back(Point(rect.x + (int)(rect.width / 2),
-                                         rect.y + (int)(rect.height / 2)));
+                    rectangle(drawing, Rect(rect.x, rect.y, rect.width, rect.height), Scalar(0, 255, 0), 1);
+                    PRES.push_back(Point(rect.x + (int) (rect.width / 2), rect.y + (int) (rect.height / 2)));
                     isFollowing = true;
-                    checkFind = true;
-                    preRoiG = rect;
+                    checkFind   = true;
+                    preRoiG     = rect;
                     cout << "following now" << endl;
                     break;
                 }
@@ -195,8 +191,7 @@ int solve()
                 cout << "missing now" << endl;
                 isFollowing = false;
             }
-        }
-        else
+        } else
         {
             findContours(g, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
             cvtColor(g, drawing, cv::COLOR_GRAY2BGR);
@@ -208,11 +203,10 @@ int solve()
                 if (isSquare(rect, 0.5))
                 {
                     rectangle(drawing, rect, Scalar(0, 255, 0), 1);
-                    PRES.push_back(Point(rect.x + (int)(rect.width / 2),
-                                         rect.y + (int)(rect.height / 2)));
+                    PRES.push_back(Point(rect.x + (int) (rect.width / 2), rect.y + (int) (rect.height / 2)));
                     isFollowing = true;
-                    checkFind = true;
-                    preRoiG = rect;
+                    checkFind   = true;
+                    preRoiG     = rect;
                     cout << "find" << endl;
                     break;
                 }
@@ -260,11 +254,12 @@ int solve()
 
         if (cur == maxFrame - 1)
         {
-            cout << " accuracy: " << counter*1.0/maxFrame << "    ";
+            cout << " accuracy: " << counter * 1.0 / maxFrame << "    ";
             capture.set(CV_CAP_PROP_POS_FRAMES, 0);
         }
 
-        if (waitKey(0) == 27) break;
+        if (waitKey(0) == 27)
+            break;
     }
 
     cv::destroyAllWindows();

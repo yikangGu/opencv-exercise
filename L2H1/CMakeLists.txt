@@ -5,6 +5,7 @@ project(L2H1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
+set(OpenCV_DIR F:\\Privacy\\ProgramFile\\Github\\opencv\\build)
 find_package(OpenCV REQUIRED)
 
 add_executable(L2H1 src/L2H1.cpp)

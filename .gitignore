@@ -12,7 +12,8 @@
 
 # CMAKE
 /*/build/
-CMakeFiles/
+/*/cmake-build-debug/
+/*/CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
@@ -20,7 +21,6 @@ Makefile
 # bin
 /*/bin/
 /*/pic/
-/*/src/
 
 # MacOSX
 *.DS_Store

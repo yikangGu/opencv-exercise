@@ -189,4 +189,3 @@ int IsR(vector<Point> candidate_R)
     convexHull(candidate_R, hulls, true);
     return 1;
 }
-    
