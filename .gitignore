@@ -24,3 +24,7 @@ Makefile
 
 # MacOSX
 *.DS_Store
+
+# readthedocs
+_build
+_templates

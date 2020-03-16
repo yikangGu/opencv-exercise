@@ -117,7 +117,8 @@ def main():
             if source == 0 or source > 1:
                 continue
 
-            left, right = (contour_i, contour_j) if contour_i[0] < contour_j[0] else (contour_j, contour_i)
+            left, right = (contour_i, contour_j) if contour_i[0] < contour_j[0] else (
+                contour_j, contour_i)
 
     left_monitor = src[left[1]:left[1]+left[3], left[0]:left[0]+left[2]]
     right_monitor = src[right[1]:right[1] +
