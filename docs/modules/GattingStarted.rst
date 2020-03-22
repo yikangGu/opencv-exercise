@@ -20,6 +20,13 @@ Requirements
 - python-geolinks
 - python-gdal
 
+Installation
+------------
+
+Go to `Installation`_ page to install this test platform.
+
+.. _`Installation`: https://opencv-exercise.readthedocs.io/en/latest/modules/Installation.html
+
 How to use
 ----------
 
