@@ -8,8 +8,8 @@ import sphinx
 # -- Project information -----------------------------------------------------
 
 project = 'USV Test Platform'
-author = 'YiKang Gu'
-copyright = '%d YiKang Gu' % datetime.now().year
+author = 'USV-CUHKSZ'
+copyright = '%d USV-CUHKSZ' % datetime.now().year
 version = '1.0'
 release = ''
 
@@ -69,7 +69,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'USV.tex', 'USV Documentation',
-     'YiKang Gu', 'manual'),
+     'USV-CUHKSZ', 'manual'),
 ]
 
 

@@ -1,4 +1,4 @@
-Gatting Started
+Getting Started
 ===============
 
 What is this?
@@ -23,9 +23,9 @@ Requirements
 Installation
 ------------
 
-Go to `Installation`_ page to install this test platform.
+Go to the `Installation`_ page to install this test platform.
 
-.. _`Installation`: https://opencv-exercise.readthedocs.io/en/latest/modules/Installation.html
+.. _`installation`: https://opencv-exercise.readthedocs.io/en/latest/modules/Installation.html
 
 How to use
 ----------
