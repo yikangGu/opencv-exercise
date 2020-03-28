@@ -1,5 +1,0 @@
-============
-Leader Board
-============
-
-coming soon...
